@@ -346,20 +346,12 @@ class RIT:
     ``/case`` path.
     """
 
-    @dataclass(frozen=True)
-    class Error(ValueError):
-        """This class is an exception class raised when an error
-        response other than ``rate limit exceeded.`` is received.
-        """
-        data: Error
-        """The json data of the response."""
-
-        def __str__(self) -> str:
-            return f'Error response received with data \'{self.data}\''
-
     x_api_key: str
+    """The X-API-Key of the RITC web server."""
     hostname: str = 'localhost'
+    """The hostname of the RITC web server. Defaults to ``localhost``."""
     port: int = 9999
+    """The port of the RITC web server. Defaults to ``9999``."""
     __session: Session = field(default_factory=Session, init=False)
 
     def __post_init__(self) -> None:
@@ -707,7 +699,7 @@ class RIT:
         """Accept the tender.
 
         In RIT REST API ``v1.0.3`` and lower, the parameter ``price`` is
-        required if the tender is not fixed-bid.
+        required only if the tender is not fixed-bid.
 
         From RIT REST API ``v1.0.4``, the bid ``price`` parameter is
         always required. If the tender is fixed-bid, the value must
@@ -894,15 +886,13 @@ class RIT:
                 parameters,
             )
             data = response.json()
+            wait = data.get('wait')
 
-            if not response.ok:
-                wait = data.get('wait')
-
-                if wait is None:
-                    raise self.Error(data)
-
+            if not response.ok and wait is not None:
                 sleep(wait)
                 data = None
+            else:
+                response.raise_for_status()
 
         if isinstance(data, Sequence):
             data = _NestedSequence(data)
