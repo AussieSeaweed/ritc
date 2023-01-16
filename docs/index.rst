@@ -22,9 +22,9 @@ handling all of the repetitive and frustrating parts of interacting with the
 Rotman Interactive Trader. Some of the features include:
 
 - Automatic handling of ``rate limit exceeded.`` error responses.
-- Programmatic interface for all available RIT API.
+- Programmatic interface for all available RIT REST API.
 - Strict ``mypy`` type-checking compatibility.
-- Futureproof design compatible with all RIT API versions... past and future.
+- Futureproof design compatible with every RIT REST API versions...
 
 .. toctree::
    :maxdepth: 1

@@ -1,3 +1,7 @@
+"""``ritc`` - A Python library for interactions with Rotman Interactive
+Trader Market Simulator Client Application via REST exchange API
+"""
+
 from __future__ import annotations
 
 from collections.abc import Iterator, Mapping, Sequence
@@ -66,12 +70,17 @@ class _NestedMapping(Mapping[Any, Any]):
 
 
 class Error(Protocol):
+    """This class is for error data."""
     code: str
     message: str
+    wait: float
 
 
 class Case(Protocol):
+    """This class is for cases."""
+
     class Status(str, Enum):
+        """This class is for case statuses."""
         ACTIVE: str = 'ACTIVE'
         PAUSED: str = 'PAUSED'
         STOPPED: str = 'STOPPED'
@@ -86,6 +95,7 @@ class Case(Protocol):
 
 
 class Trader(Protocol):
+    """This class is for traders."""
     trader_id: str
     first_name: str
     last_name: str
@@ -93,6 +103,7 @@ class Trader(Protocol):
 
 
 class Limit(Protocol):
+    """This class is for limits."""
     name: str
     gross: float
     net: float
@@ -102,7 +113,8 @@ class Limit(Protocol):
     net_fine: float
 
 
-class New(Protocol):
+class News(Protocol):
+    """This class is for news."""
     news_id: int
     period: int
     tick: int
@@ -112,17 +124,24 @@ class New(Protocol):
 
 
 class Ticker(Protocol):
+    """This class is for tickers."""
+
     class Quantity(Protocol):
+        """This class is for ticker quantities."""
         ticker: str
         quantity: float
 
     class Price(Protocol):
+        """This class is for ticker prices."""
         ticker: str
         price: float
 
 
 class Asset(Protocol):
+    """This class is for assets."""
+
     class Type(str, Enum):
+        """This class is for asset types."""
         CONTAINER: str = 'CONTAINER'
         PIPELINE: str = 'PIPELINE'
         SHIP: str = 'SHIP'
@@ -131,6 +150,7 @@ class Asset(Protocol):
         PRODUCER: str = 'PRODUCER'
 
     class History(Protocol):
+        """This class is for asset histories."""
         ticker: str
         tick: int
         action: str
@@ -141,6 +161,7 @@ class Asset(Protocol):
         convert_to_price: Sequence[Ticker.Price]
 
     class Lease(Protocol):
+        """This class is for asset leases."""
         id: int
         ticker: str
         type: Asset.Type
@@ -169,15 +190,20 @@ class Asset(Protocol):
 
 
 class Order(Protocol):
+    """This class is for orders."""
+
     class Type(str, Enum):
+        """This class is for order types."""
         MARKET: str = 'MARKET'
         LIMIT: str = 'LIMIT'
 
     class Action(str, Enum):
+        """This class is for order actions."""
         BUY: str = 'BUY'
         SELL: str = 'SELL'
 
     class Status(str, Enum):
+        """This class is for order statuses."""
         OPEN: str = 'OPEN'
         TRANSACTED: str = 'TRANSACTED'
         CANCELLED: str = 'CANCELLED'
@@ -197,15 +223,20 @@ class Order(Protocol):
 
 
 class SuccessResult(Protocol):
+    """This class is for success results."""
     success: bool
 
 
 class CancellationResult(Protocol):
+    """This class is for cancellation requests."""
     cancelled_order_ids: Sequence[int]
 
 
 class Security(Protocol):
+    """This class is for securities."""
+
     class Type(str, Enum):
+        """This class is for security types."""
         SPOT: str = 'SPOT'
         FUTURE: str = 'FUTURE'
         INDEX: str = 'INDEX'
@@ -220,14 +251,17 @@ class Security(Protocol):
         SPRE: str = 'SPRE'
 
     class Limit(Protocol):
+        """This class is for security limits."""
         name: str
         units: float
 
     class Book(Protocol):
+        """This class is for security books."""
         bid: Sequence[Order]
         ask: Sequence[Order]
 
     class History(Protocol):
+        """This class is for security histories."""
         tick: int
         open: float
         high: float
@@ -235,6 +269,7 @@ class Security(Protocol):
         close: float
 
     class TAS(Protocol):
+        """This class is for security times and sales."""
         id: int
         period: int
         tick: int
@@ -286,6 +321,7 @@ class Security(Protocol):
 
 
 class Tender(Protocol):
+    """This class is for tenders."""
     tender_id: int
     period: int
     tick: int
@@ -299,9 +335,24 @@ class Tender(Protocol):
 
 @dataclass(frozen=True)
 class RIT:
+    """This class contains various methods that interact with the RIT
+    Client Application.
+
+    The method names reflect the request method used, and the request
+    path used. The positional arguments are used as part of the path,
+    while the keyword arguments are used as parameters to the request.
+
+    For example :meth:`RIT.get_case` sends a ``GET`` request to the
+    ``/case`` path.
+    """
+
     @dataclass(frozen=True)
     class Error(ValueError):
+        """This class is an exception class raised when an error
+        response other than ``rate limit exceeded.`` is received.
+        """
         data: Error
+        """The json data of the response."""
 
         def __str__(self) -> str:
             return f'Error response received with data \'{self.data}\''
@@ -319,6 +370,10 @@ class RIT:
         pass
 
     def get_case(self, **kwargs: Any) -> Any:
+        """Get an information about the current case.
+
+        :return: The current case.
+        """
         return self.__get('/v1/case', kwargs)
 
     @overload  # type: ignore[misc]
@@ -326,6 +381,10 @@ class RIT:
         pass
 
     def get_trader(self, **kwargs: Any) -> Any:
+        """Get an information about the currently signed in trader.
+
+        :return: The current trader.
+        """
         return self.__get('/v1/trader', kwargs)
 
     @overload  # type: ignore[misc]
@@ -333,6 +392,10 @@ class RIT:
         pass
 
     def get_limits(self, **kwargs: Any) -> Any:
+        """Get trading limits for the current case.
+
+        :return: The trading limits.
+        """
         return self.__get('/v1/limits', kwargs)
 
     @overload
@@ -341,7 +404,7 @@ class RIT:
             *,
             since: Optional[int] = None,
             limit: Optional[int] = None,
-    ) -> Sequence[New]:
+    ) -> Sequence[News]:
         pass
 
     @overload
@@ -350,10 +413,28 @@ class RIT:
             *,
             after: Optional[int] = None,
             limit: Optional[int] = None,
-    ) -> Sequence[New]:
+    ) -> Sequence[News]:
         pass
 
     def get_news(self, **kwargs: Any) -> Any:
+        """Gets the most recent news.
+
+        The parameter named ``since`` was renamed to ``after`` in RIT
+        REST API ``v1.0.4``.
+
+        For RIT Client applications with REST API ``v1.0.3`` or lower,
+        the user must use ``since`` instead of ``after`` if he/she
+        wishes to use that parameter, and vice versa.
+
+        :param since: Retrieve only news items *after* a particular
+                      :attr:`News.news_id`. Renamed to ``after`` in
+                      ``v1.0.4``.
+        :param after: Retrieve only news items *after* a particular
+                      :attr:`News.news_id`. Introduced in ``v1.0.4``.
+        :param limit: Result set limit, counting backwards from the most
+                      recent news item. Defaults to ``20``.
+        :return: The most recent news.
+        """
         return self.__get('/v1/news', kwargs)
 
     @overload  # type: ignore[misc]
@@ -361,6 +442,12 @@ class RIT:
         pass
 
     def get_assets(self, **kwargs: Any) -> Any:
+        """Gets a list of available assets.
+
+        :param ticker: The optional asset ticker. A full list of assets
+                       is returned if unspecified.
+        :return: The list of available assets.
+        """
         return self.__get('/v1/assets', kwargs)
 
     @overload  # type: ignore[misc]
@@ -374,6 +461,29 @@ class RIT:
         pass
 
     def get_assets_history(self, **kwargs: Any) -> Any:
+        """Get the activity log for assets.
+
+        This API was introduced in RIT REST API ``v1.0.3``.
+
+        The way ``limit`` parameter is interpreted is RIT REST API
+        version dependent.
+
+        In ``v1.0.3``, the ``limit`` is interpreted as the result set
+        limit, counting backwards from the most recent tick. This
+        defaults to retrieving the entire period.
+
+        In ``v1.0.4``, the ``limit`` is interpreted as the result set
+        limit, counting backwards from the most recent item. This
+        defaults to ``20``.
+
+        :param ticker: The optional asset ticker. If unspecified, a full
+                       list of assets is retrieved.
+        :param period: Period to retrieve data from. Defaults to the
+                       current period.
+        :param limit: Result set limit. How this value is interpreted
+                      is RIT REST API version dependent.
+        :return: The activity log for assets.
+        """
         return self.__get('/v1/assets/history', kwargs)
 
     @overload  # type: ignore[misc]
@@ -385,6 +495,14 @@ class RIT:
         pass
 
     def get_securities(self, **kwargs: Any) -> Any:
+        """Get a list of available securities and associated positions.
+
+        :param ticker: The optional :attr:`Security.ticker`. If
+                       unspecified, a full list of securities is
+                       retrieved.
+        :return: The lists of available securites and associated
+                 positions.
+        """
         return self.__get('/v1/securities', kwargs)
 
     @overload  # type: ignore[misc]
@@ -397,6 +515,13 @@ class RIT:
         pass
 
     def get_securities_book(self, **kwargs: Any) -> Any:
+        """Get the order book of a security.
+
+        :param ticker: The :attr:`Security.ticker`.
+        :param limit: Maximum number of orders to return for each side of the
+                      order book. Defaults to ``20``.
+        :return: The order book.
+        """
         return self.__get('/v1/securities/book', kwargs)
 
     @overload  # type: ignore[misc]
@@ -410,6 +535,23 @@ class RIT:
         pass
 
     def get_securities_history(self, **kwargs: Any) -> Any:
+        """Get the OHLC history for a security.
+
+        In ``v1.0.3`` and previous versions, the ``limit`` is
+        interpreted as the result set limit, counting backwards from the
+        most recent tick. This defaults to retrieving the entire period.
+
+        In ``v1.0.4``, the ``limit`` is interpreted as the result set
+        limit, counting backwards from the most recent item. This
+        defaults to ``20``.
+
+        :param ticker: The :attr:`Security.ticker`.
+        :param period: Period to retrieve data from. Defaults to the
+                       current period.
+        :param limit: Result set limit. How this value is interpreted
+                      is RIT REST API version dependent.
+        :return: The OHLC history.
+        """
         return self.__get('/v1/securities/history', kwargs)
 
     @overload  # type: ignore[misc]
@@ -424,6 +566,44 @@ class RIT:
         pass
 
     def get_securities_tas(self, **kwargs: Any) -> Any:
+        """Get time and sales history for a security.
+
+        Data is anonymized.
+
+        In ``v1.0.3`` and previous versions, the ``limit`` is
+        interpreted as the result set limit, counting backwards from the
+        most recent tick. This defaults to retrieving the entire period.
+
+        In ``v1.0.4``, the ``limit`` is interpreted as the result set
+        limit, counting backwards from the most recent item. This
+        defaults to ``20``.
+
+        For ``v1.0.3`` and lower, there are two modes of retrieval for
+        this endpoint.
+
+        If ``after`` is specified, then only data with an ``id`` value
+        greater than ``after`` will be returned. This allows only
+        incremental data to be retrieved by storing the last ``id``
+        value returned. Setting ``after`` to ``0`` will return all time
+        and sales data.
+
+        Alternatively, specifying ``period`` and ``limit`` will fetch
+        data from the corresponding ``period`` and ``tick`` window. For
+        example, setting ``limit`` to ``0`` returns only data from the
+        current period and current tick.
+
+        Both modes are simultaneously supported onwards from ``v1.0.4``.
+
+        :param ticker: The :attr:`Security.ticker`.
+        :param after: Retrieve only data with an
+                      :attr:`Security.TAS.id` value greater than this
+                      value.
+        :param period: Period to retrieve data from. Defaults to the
+                       current period.
+        :param limit: Result set limit. How this value is interpreted
+                      is RIT REST API version dependent.
+        :return: The time and sales history.
+        """
         return self.__get('/v1/securities/tas', kwargs)
 
     @overload
@@ -439,6 +619,16 @@ class RIT:
         pass
 
     def get_orders(self, id: Optional[int] = None, **kwargs: Any) -> Any:
+        """Get a list of all orders or details of a specific order.
+
+        if ``id`` is specified, a single order is returned instead of a
+        list of orders.
+
+        :param status: The status of the orders to return. Defaults to
+                       :attr:`Order.Status.OPEN`.
+        :param id: The optional :attr:`Order.order_id` of the order.
+        :return: The list of all orders or a single order.
+        """
         if id is None:
             url = '/v1/orders'
         else:
@@ -452,7 +642,7 @@ class RIT:
             *,
             ticker: str,
             type: Order.Type,
-            quantity: int,
+            quantity: float,
             action: Order.Action,
             price: Optional[float] = None,
             dry_run: Optional[int] = None,
@@ -460,6 +650,25 @@ class RIT:
         pass
 
     def post_orders(self, **kwargs: Any) -> Any:
+        """Insert a new order.
+
+        Note that this endpoint is rate-limited. If the rate limit is
+        exceeded, the ``ritc`` library will internally sleep and hang
+        until the desired timeout has passed and try to post the order
+        again.
+
+        :param ticker: The ticker.
+        :param type: The order type.
+        :param quantity: The order quantity.
+        :param action: The order action.
+        :param price: The optional price. Required if type is
+                      :attr:`Order.Type.LIMIT`. Ignored otherwise.
+        :param dry_run: Only available if type is
+                        :attr:`Order.Type.MARKET`. Simulates the
+                        order execution and returns the result as if the
+                        order was executed.
+        :return: The newly posted order.
+        """
         return self.__post('/v1/orders', kwargs)
 
     @overload  # type: ignore[misc]
@@ -467,6 +676,11 @@ class RIT:
         pass
 
     def delete_orders(self, id: int, **kwargs: Any) -> Any:
+        """Cancel an open order.
+
+        :param id: The :attr:`Order.id` of the order.
+        :return: The newly posted order.
+        """
         return self.__delete(f'/v1/orders/{id}', kwargs)
 
     @overload  # type: ignore[misc]
@@ -474,6 +688,10 @@ class RIT:
         pass
 
     def get_tenders(self, **kwargs: Any) -> Any:
+        """Get a list of all active tenders.
+
+        :return: The list of all active tenders.
+        """
         return self.__get('/v1/tenders', kwargs)
 
     @overload  # type: ignore[misc]
@@ -486,6 +704,20 @@ class RIT:
         pass
 
     def post_tenders(self, id: int, **kwargs: Any) -> Any:
+        """Accept the tender.
+
+        In RIT REST API ``v1.0.3`` and lower, the parameter ``price`` is
+        required if the tender is not fixed-bid.
+
+        From RIT REST API ``v1.0.4``, the bid ``price`` parameter is
+        always required. If the tender is fixed-bid, the value must
+        match the tender price.
+
+        :param id: The :attr:`Tender.tender_id` of the tender.
+        :param price: Bid price of the tender. Its requirement is RIT
+                      REST API version dependent.
+        :return: The success result.
+        """
         return self.__post(f'/v1/tenders/{id}', kwargs)
 
     @overload  # type: ignore[misc]
@@ -493,6 +725,11 @@ class RIT:
         pass
 
     def delete_tenders(self, id: int, **kwargs: Any) -> Any:
+        """Decline the tender.
+
+        :param id: The :attr:`Tender.tender_id` of the tender.
+        :return: The success result.
+        """
         return self.__delete(f'/v1/tenders/{id}', kwargs)
 
     @overload
@@ -504,6 +741,16 @@ class RIT:
         pass
 
     def get_leases(self, id: Optional[int] = None, **kwargs: Any) -> Any:
+        """List all assets currently being leased or being used or get
+        a single leased or used asset.
+
+        if ``id`` is specified, a single lease is returned instead of a
+        list of leases.
+
+        :param id: The optional :attr:`Asset.Lease.id` of the asset lease.
+        :return: The list of all assets or a single asset currently being
+                 leased or used.
+        """
         if id is None:
             url = '/v1/leases'
         else:
@@ -540,6 +787,30 @@ class RIT:
         pass
 
     def post_leases(self, id: Optional[int] = None, **kwargs: Any) -> Any:
+        """Lease or use an asset.
+
+        Depending on the type of asset, you will need to specify the
+        ``fromN`` and ``quantityN`` parameters. Only specify subsequent
+        ``fromN`` and ``quantityN`` parameters if needed.
+
+        :param id: The optional :attr:`Asset.Lease.id` of the asset lease.
+        :param ticker: :attr:`Asset.Lease.ticker` of the asset to lease
+                       or use.
+        :param from1: Required for assets that can be used without
+                      leasing first (such as :attr:`Asset.Type.REFINERY`
+                      type assets).  Specifies the source ticker.
+        :param quantity1: Required for assets that can be used without
+                          leasing first (such as
+                          :attr:`Asset.Type.REFINERY` type assets).
+                          Specifies the source quantity.
+        :param from2: Specifies the 2nd source ticker (if required).
+        :param quantity2: Specifies the 2nd source quantity (if
+                          required).
+        :param from3: Specifies the 3rd source ticker (if required).
+        :param quantity3: Specifies the 3rd source quantity (if
+                          required).
+        :return: The leased or used asset.
+        """
         if id is None:
             url = '/v1/leases'
         else:
@@ -552,6 +823,11 @@ class RIT:
         pass
 
     def delete_leases(self, id: int, **kwargs: Any) -> Any:
+        """Unlease an asset.
+
+        :param id: The :attr:`Asset.Lease.id` of the asset lease.
+        :return: The success result.
+        """
         return self.__delete(f'/v1/leases/{id}', kwargs)
 
     @overload
@@ -571,6 +847,27 @@ class RIT:
         pass
 
     def post_commands_cancel(self, **kwargs: Any) -> Any:
+        """Bulk cancel open orders.
+
+        Exactly one query parameter must be specified. If multiple query
+        parameters are specified, only the first available parameter in
+        the order below will be processed. Returns a result object that
+        specifies which orders were actually cancelled.
+
+        The ``query`` parameter was removed in RIT REST API ``v1.0.4``.
+
+        :param all: Set to ``1`` to cancel all open orders.
+        :param ticker: Cancel all open orders for a security.
+        :param ids: Cancel a set of orders referenced via a
+                    comma-separated list of :attr:`Order.order_id`. For
+                    example, ``'12,13,91,1'``
+        :param query: Query string to select orders for cancellation.
+                      For example,
+                      ``"Ticker='CL' AND Price>124.23 AND Volume<0"``
+                      will cancel all open sell orders for ``CL`` priced
+                      above ``124.23``.
+        :return: The cancellation result.
+        """
         return self.__post('/v1/commands/cancel', **kwargs)
 
     def __get(self, path: str, parameters: dict[Any, Any]) -> Any:
