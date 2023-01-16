@@ -45,5 +45,5 @@ setup(
     },
     py_modules=['ritc'],
     install_requires=['requests~=2.28.2'],
-    python_requires='>=3.7',
+    python_requires='>=3.8',
 )

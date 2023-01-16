@@ -1,8 +1,13 @@
-ritc
-====
+.. ritc documentation master file, created by
+   sphinx-quickstart on Mon Jan 16 00:22:38 2023.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
 
-A Python library for interactions with Rotman Interactive Trader Market
-Simulator Client Application via REST exchange API
+Welcome to ritc's documentation!
+================================
+
+``ritc`` is a Python library for interactions with Rotman Interactive Trader
+Market Simulator Client Application via REST exchange API.
 
 The official REST API for Rotman Interactive Trader can be found in their
 `API documentation`_.
@@ -21,24 +26,17 @@ Rotman Interactive Trader. Some of the features include:
 - Strict ``mypy`` type-checking compatibility.
 - Futureproof design compatible with all RIT API versions... past and future.
 
-Installation
-------------
+.. toctree::
+   :maxdepth: 1
+   :caption: Contents:
 
-This library is available on PyPI_.
+   setup
+   examples
+   modules
 
-.. _PyPI: https://pypi.org/project/ritc/
+Indices and tables
+==================
 
-You can install it by executing the following command:
-
-.. code-block:: sh
-
-   pip install ritc
-
-Documentation
--------------
-
-You can read the latest_ and stable_ documentation online. Or, you can also
-generate the documentation for offline viewing with Sphinx.
-
-.. _latest: https://ritc.readthedocs.io/en/latest/
-.. _stable: https://ritc.readthedocs.io/en/stable/
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
