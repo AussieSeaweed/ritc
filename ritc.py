@@ -631,6 +631,7 @@ class RIT:
     @overload  # type: ignore[misc]
     def post_orders(
             self,
+            wait: bool = False,
             *,
             ticker: str,
             type: Order.Type,
@@ -641,7 +642,7 @@ class RIT:
     ) -> Order:
         pass
 
-    def post_orders(self, **kwargs: Any) -> Any:
+    def post_orders(self, wait: bool = False, **kwargs: Any) -> Any:
         """Insert a new order.
 
         Note that this endpoint is rate-limited. If the rate limit is
@@ -649,6 +650,8 @@ class RIT:
         until the desired timeout has passed and try to post the order
         again.
 
+        :param wait: Wait if rate limit is exceeded, defaults to
+                     ``False``.
         :param ticker: The ticker.
         :param type: The order type.
         :param quantity: The order quantity.
@@ -661,7 +664,7 @@ class RIT:
                         order was executed.
         :return: The newly posted order.
         """
-        return self.__post('/v1/orders', kwargs)
+        return self.__post('/v1/orders', kwargs, wait)
 
     @overload  # type: ignore[misc]
     def delete_orders(self, id: int) -> SuccessResult:
@@ -860,22 +863,38 @@ class RIT:
                       above ``124.23``.
         :return: The cancellation result.
         """
-        return self.__post('/v1/commands/cancel', **kwargs)
+        return self.__post('/v1/commands/cancel', kwargs)
 
-    def __get(self, path: str, parameters: dict[Any, Any]) -> Any:
-        return self.__request('GET', path, parameters)
+    def __get(
+            self,
+            path: str,
+            parameters: dict[Any, Any],
+            wait: bool = False,
+    ) -> Any:
+        return self.__request('GET', path, parameters, wait)
 
-    def __post(self, path: str, parameters: dict[Any, Any]) -> Any:
-        return self.__request('POST', path, parameters)
+    def __post(
+            self,
+            path: str,
+            parameters: dict[Any, Any],
+            wait: bool = False,
+    ) -> Any:
+        return self.__request('POST', path, parameters, wait)
 
-    def __delete(self, path: str, parameters: dict[Any, Any]) -> Any:
-        return self.__request('DELETE', path, parameters)
+    def __delete(
+            self,
+            path: str,
+            parameters: dict[Any, Any],
+            wait: bool = False,
+    ) -> Any:
+        return self.__request('DELETE', path, parameters, wait)
 
     def __request(
             self,
             method: str,
             path: str,
             parameters: dict[Any, Any],
+            wait: bool = False,
     ) -> Any:
         data = None
 
@@ -886,10 +905,9 @@ class RIT:
                 parameters,
             )
             data = response.json()
-            wait = data.get('wait')
 
-            if not response.ok and wait is not None:
-                sleep(wait)
+            if wait and not response.ok and 'wait' in data:
+                sleep(data['wait'])
                 data = None
             else:
                 response.raise_for_status()
