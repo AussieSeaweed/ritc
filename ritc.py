@@ -28,7 +28,7 @@ class _NestedSequence(Sequence[Any]):
     def __getitem__(self, key: Union[int, slice]) -> Any:
         item = self.__sequence[key]
 
-        if isinstance(item, Sequence):
+        if not isinstance(item, str) and isinstance(item, Sequence):
             item = _NestedSequence(item)
         elif isinstance(item, Mapping):
             item = _NestedMapping(item)
@@ -49,7 +49,7 @@ class _NestedMapping(Mapping[Any, Any]):
     def __getitem__(self, key: Any) -> Any:
         item = self.__mapping[key]
 
-        if isinstance(item, Sequence):
+        if not isinstance(item, str) and isinstance(item, Sequence):
             item = _NestedSequence(item)
         elif isinstance(item, Mapping):
             item = _NestedMapping(item)
@@ -912,7 +912,7 @@ class RIT:
             else:
                 response.raise_for_status()
 
-        if isinstance(data, Sequence):
+        if not isinstance(data, str) and isinstance(data, Sequence):
             data = _NestedSequence(data)
         elif isinstance(data, Mapping):
             data = _NestedMapping(data)
