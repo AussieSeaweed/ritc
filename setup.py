@@ -7,16 +7,17 @@ with open('README.rst', 'r') as file:
 
 setup(
     name='ritc',
-    version='0.0.1',
+    version='0.0.2',
     description='A Python library for interactions with Rotman Interactive '
                 'Trader Market Simulator Client Application via REST exchange '
                 'API',
     long_description=long_description,
     long_description_content_type='text/x-rst',
-    url='https://github.com/AussieSeaweed/ritc',
     author='Juho Kim',
     author_email='juho-kim@outlook.com',
-    license='AGPLv3',
+    url='https://github.com/AussieSeaweed/ritc',
+    packages=['ritc'],
+    package_data={'ritc': ['py.typed']},
     classifiers=[
         'Intended Audience :: Developers',
         'Intended Audience :: Education',
@@ -34,13 +35,13 @@ setup(
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
     ],
+    license='AGPLv3',
     keywords=['rotman', 'rit', 'bmo', 'uoft'],
     project_urls={
         'Documentation': 'https://ritc.readthedocs.io/en/latest/',
         'Source': 'https://github.com/AussieSeaweed/ritc',
         'Tracker': 'https://github.com/AussieSeaweed/ritc/issues',
     },
-    py_modules=['ritc'],
     install_requires=['requests~=2.28.2'],
     python_requires='>=3.9',
 )
