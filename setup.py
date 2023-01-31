@@ -7,7 +7,7 @@ with open('README.rst', 'r') as file:
 
 setup(
     name='ritc',
-    version='0.0.0.dev0',
+    version='0.0.0',
     description='A Python library for interactions with Rotman Interactive '
                 'Trader Market Simulator Client Application via REST exchange '
                 'API',
@@ -18,7 +18,6 @@ setup(
     author_email='juho-kim@outlook.com',
     license='AGPLv3',
     classifiers=[
-        'Development Status :: 1 - Planning',
         'Intended Audience :: Developers',
         'Intended Audience :: Education',
         'Intended Audience :: End Users/Desktop',
