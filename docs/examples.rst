@@ -308,7 +308,5 @@ Tips
 - Minimize the API calls for maximum speed and to minimize the period of time
   your code blocks.
 - Look at the source code of ``ritc`` and make changes you think is necessary!
-  But, as per the ``AGPLv3`` license the library is under, you must share your
-  changes!
 - Use simple logic. If a function gets too long or convoluted, you can
   definitely make it simpler! Plus, it reduces the number of potential bugs.

@@ -7,7 +7,7 @@ with open('README.rst', 'r') as file:
 
 setup(
     name='ritc',
-    version='0.0.2',
+    version='0.0.3',
     description='A Python library for interactions with Rotman Interactive '
                 'Trader Market Simulator Client Application via REST exchange '
                 'API',
@@ -25,7 +25,7 @@ setup(
         'Intended Audience :: Financial and Insurance Industry',
         'Intended Audience :: Information Technology',
         'Topic :: Education',
-        'License :: OSI Approved :: GNU Affero General Public License v3',
+        'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
@@ -35,7 +35,7 @@ setup(
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
     ],
-    license='AGPLv3',
+    license='MIT',
     keywords=['rotman', 'rit', 'bmo', 'uoft'],
     project_urls={
         'Documentation': 'https://ritc.readthedocs.io/en/latest/',
