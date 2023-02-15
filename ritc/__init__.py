@@ -123,8 +123,8 @@ class Limit(Protocol):
     name: str
     gross: float
     net: float
-    gross_limit: float
-    net_limit: float
+    gross_limit: int
+    net_limit: int
     gross_fine: float
     net_fine: float
 
@@ -192,8 +192,8 @@ class Asset(Protocol):
     ticker: str
     type: Type
     description: str
-    total_quantity: float
-    available_quantity: float
+    total_quantity: int
+    available_quantity: int
     lease_price: float
     convert_from: Sequence[Ticker.Quantity]
     convert_to: Sequence[Ticker.Quantity]
@@ -275,6 +275,8 @@ class Security(Protocol):
         """This class is for security books."""
         bid: Sequence[Order]
         ask: Sequence[Order]
+        bids: Sequence[Order]
+        asks: Sequence[Order]
 
     class History(Protocol):
         """This class is for security histories."""
@@ -294,7 +296,7 @@ class Security(Protocol):
 
     ticker: str
     type: Type
-    size: float
+    size: int
     position: float
     vwap: float
     nlv: float
@@ -315,7 +317,7 @@ class Security(Protocol):
     start_period: int
     stop_period: int
     description: str
-    unit_multiplier: float
+    unit_multiplier: int
     display_unit: str
     start_price: float
     min_price: float
@@ -326,6 +328,7 @@ class Security(Protocol):
     min_trade_size: float
     max_trade_size: float
     required_tickers: str
+    underlying_tickers: Sequence[str]
     bond_coupon: float
     interest_payments_per_period: int
     base_security: str
@@ -343,6 +346,7 @@ class Tender(Protocol):
     tick: int
     expires: int
     caption: str
+    ticker: str
     quantity: float
     action: Order.Action
     is_fixed_bid: bool
@@ -380,6 +384,17 @@ class RIT:
     def get_case(self, **kwargs: Any) -> Any:
         """Get an information about the current case.
 
+        >>> rit = RIT('G4DNIZ5D')
+        >>> case = rit.get_case()
+        >>> case
+        {'name': 'RITC 2023 Algo Case - practice', 'period': 1, ...}
+        >>> case.tick
+        83
+        >>> case['tick']
+        83
+        >>> case.status == Case.Status.ACTIVE
+        True
+
         :return: The current case.
         """
         return self.__get('/v1/case', kwargs)
@@ -391,6 +406,15 @@ class RIT:
     def get_trader(self, **kwargs: Any) -> Any:
         """Get an information about the currently signed in trader.
 
+        >>> rit = RIT('G4DNIZ5D')
+        >>> trader = rit.get_trader()
+        >>> trader
+        {'trader_id': 'AussieSeaweed', 'first_name': 'Juho', ...}
+        >>> trader.trader_id
+        'AussieSeaweed'
+        >>> trader['trader_id']
+        'AussieSeaweed'
+
         :return: The current trader.
         """
         return self.__get('/v1/trader', kwargs)
@@ -401,6 +425,15 @@ class RIT:
 
     def get_limits(self, **kwargs: Any) -> Any:
         """Get trading limits for the current case.
+
+        >>> rit = RIT('G4DNIZ5D')
+        >>> limits = rit.get_limits()
+        >>> limits
+        [{'name': 'LIMIT-STOCK', 'gross': 32500.0, 'net': -32500.0, ...}, ...]
+        >>> limits[0].name
+        'LIMIT-STOCK'
+        >>> limits[0]['name']
+        'LIMIT-STOCK'
 
         :return: The trading limits.
         """
@@ -434,6 +467,15 @@ class RIT:
         the user must use ``since`` instead of ``after`` if he/she
         wishes to use that parameter, and vice versa.
 
+        >>> rit = RIT('G4DNIZ5D')
+        >>> news = rit.get_news()
+        >>> news
+        [{'news_id': 1, 'period': 1, 'tick': 0, 'ticker': '', ...}, ...]
+        >>> news[0].headline
+        'Welcome to RITC 2022 Algo Case - Practice Case'
+        >>> news[0]['headline']
+        'Welcome to RITC 2022 Algo Case - Practice Case'
+
         :param since: Retrieve only news items *after* a particular
                       :attr:`News.news_id`. Renamed to ``after`` in
                       ``v1.0.4``.
@@ -451,6 +493,18 @@ class RIT:
 
     def get_assets(self, **kwargs: Any) -> Any:
         """Gets a list of available assets.
+
+        >>> rit = RIT('G4DNIZ5D')
+        >>> assets = rit.get_assets()
+        >>> assets
+        [{'ticker': 'ETF-Creation', 'type': 'REFINERY', ...}, ...]
+        >>> assets = rit.get_assets(ticker='ETF-Creation')
+        >>> assets
+        [{'ticker': 'ETF-Creation', 'type': 'REFINERY', ...}]
+        >>> assets[0].type
+        'REFINERY'
+        >>> assets[0]['type']
+        'REFINERY'
 
         :param ticker: The optional asset ticker. A full list of assets
                        is returned if unspecified.
@@ -484,6 +538,15 @@ class RIT:
         limit, counting backwards from the most recent item. This
         defaults to ``20``.
 
+        >>> rit = RIT('G4DNIZ5D')
+        >>> histories = rit.get_assets_history()
+        >>> histories
+        [{'tick': 100, 'ticker': 'ETF-Redemption', ...}, ...]
+        >>> histories[0].tick
+        100
+        >>> histories[0]['tick']
+        100
+
         :param ticker: The optional asset ticker. If unspecified, a full
                        list of assets is retrieved.
         :param period: Period to retrieve data from. Defaults to the
@@ -505,6 +568,17 @@ class RIT:
     def get_securities(self, **kwargs: Any) -> Any:
         """Get a list of available securities and associated positions.
 
+        >>> rit = RIT('G4DNIZ5D')
+        >>> securities = rit.get_securities(ticker='RITC')
+        >>> securities[0]
+        {'ticker': 'RITC', 'type': 'STOCK', 'size': 1, ...}
+        >>> securities[0].ticker
+        'RITC'
+        >>> securities[0].bid
+        24.21
+        >>> securities[0]['ask']
+        24.36
+
         :param ticker: The optional :attr:`Security.ticker`. If
                        unspecified, a full list of securities is
                        retrieved.
@@ -524,6 +598,19 @@ class RIT:
 
     def get_securities_book(self, **kwargs: Any) -> Any:
         """Get the order book of a security.
+
+        >>> rit = RIT('G4DNIZ5D')
+        >>> book = rit.get_securities_book(ticker='RITC')
+        >>> len(book.bids)
+        20
+        >>> book.bids[:2]
+        [{'order_id': 2505, 'period': 1, 'tick': 132, ...}, ...]
+        >>> book.bids[0].ticker
+        'RITC'
+        >>> book.bids[0].price
+        25.06
+        >>> book.bids[0]['type']
+        'LIMIT'
 
         :param ticker: The :attr:`Security.ticker`.
         :param limit: Maximum number of orders to return for each side of the
@@ -552,6 +639,17 @@ class RIT:
         In ``v1.0.4``, the ``limit`` is interpreted as the result set
         limit, counting backwards from the most recent item. This
         defaults to ``20``.
+
+        >>> rit = RIT('G4DNIZ5D')
+        >>> histories = rit.get_securities_history(ticker='RITC')
+        >>> len(histories)
+        224
+        >>> histories[:2]
+        [{'tick': 224, 'open': 26.27, 'high': 26.42, 'low': 26.27, ...}, ...]
+        >>> histories[0].tick
+        224
+        >>> histories[0]['high']
+        26.42
 
         :param ticker: The :attr:`Security.ticker`.
         :param period: Period to retrieve data from. Defaults to the
@@ -602,6 +700,17 @@ class RIT:
 
         Both modes are simultaneously supported onwards from ``v1.0.4``.
 
+        >>> rit = RIT('G4DNIZ5D')
+        >>> tas = rit.get_securities_tas(ticker='RITC')
+        >>> len(tas)
+        579
+        >>> tas[:2]
+        [{'id': 2099, 'period': 1, 'tick': 299, 'price': 26.33, ...}, ...]
+        >>> tas[0].id
+        2099
+        >>> tas[0].price
+        26.33
+
         :param ticker: The :attr:`Security.ticker`.
         :param after: Retrieve only data with an
                       :attr:`Security.TAS.id` value greater than this
@@ -631,6 +740,19 @@ class RIT:
 
         if ``id`` is specified, a single order is returned instead of a
         list of orders.
+
+        >>> rit = RIT('G4DNIZ5D')
+        >>> orders = rit.get_orders()
+        >>> len(orders)
+        5
+        >>> orders
+        [{'order_id': 714, 'period': 1, 'tick': 31, ...}, ...]
+        >>> orders[0].ticker
+        'BEAR'
+        >>> orders[0].price
+        15.04
+        >>> orders[0].action == Order.Action.SELL
+        True
 
         :param status: The status of the orders to return. Defaults to
                        :attr:`Order.Status.OPEN`.
@@ -666,6 +788,25 @@ class RIT:
         until the desired timeout has passed and try to post the order
         again.
 
+        >>> rit = RIT('G4DNIZ5D')
+        >>> order = rit.post_orders(
+        ...     ticker='RITC',
+        ...     type=Order.Type.MARKET,
+        ...     quantity=5,
+        ...     action=Order.Action.BUY,
+        ... )
+        >>> order
+        {'order_id': 3135, 'period': 1, 'tick': 180, ...}
+        >>> order = rit.post_orders(
+        ...     ticker='RITC',
+        ...     type='LIMIT',
+        ...     quantity=5,
+        ...     action='SELL',
+        ...     price=24.5,
+        ... )
+        >>> order
+        {'order_id': 3835, 'period': 1, 'tick': 223, ...}
+
         :param wait: Wait if rate limit is exceeded, defaults to
                      ``False``.
         :param ticker: The ticker.
@@ -689,6 +830,15 @@ class RIT:
     def delete_orders(self, id: int, **kwargs: Any) -> Any:
         """Cancel an open order.
 
+        >>> rit = RIT('G4DNIZ5D')
+        >>> result = rit.delete_orders(563)
+        >>> result
+        {'success': True}
+        >>> result.success
+        True
+        >>> result['success']
+        True
+
         :param id: The :attr:`Order.id` of the order.
         :return: The newly posted order.
         """
@@ -700,6 +850,11 @@ class RIT:
 
     def get_tenders(self, **kwargs: Any) -> Any:
         """Get a list of all active tenders.
+
+        >>> rit = RIT('G4DNIZ5D')
+        >>> tenders = rit.get_tenders()
+        >>> tenders
+        [{'tender_id': 1507, 'period': 1, 'tick': 104, ...}, ...]
 
         :return: The list of all active tenders.
         """
@@ -724,6 +879,13 @@ class RIT:
         always required. If the tender is fixed-bid, the value must
         match the tender price.
 
+        >>> rit = RIT('G4DNIZ5D')
+        >>> result = rit.post_tenders(563)
+        >>> result
+        {'success': True}
+        >>> result.success
+        True
+
         :param id: The :attr:`Tender.tender_id` of the tender.
         :param price: Bid price of the tender. Its requirement is RIT
                       REST API version dependent.
@@ -737,6 +899,13 @@ class RIT:
 
     def delete_tenders(self, id: int, **kwargs: Any) -> Any:
         """Decline the tender.
+
+        >>> rit = RIT('G4DNIZ5D')
+        >>> result = rit.delete_tenders(563)
+        >>> result
+        {'success': True}
+        >>> result.success
+        True
 
         :param id: The :attr:`Tender.tender_id` of the tender.
         :return: The success result.
@@ -757,6 +926,13 @@ class RIT:
 
         if ``id`` is specified, a single lease is returned instead of a
         list of leases.
+
+        >>> rit = RIT('G4DNIZ5D')
+        >>> leases = rit.get_leases()
+        >>> leases
+        [{'id': 3, 'ticker': 'ETF-Creation', 'type': 'REFINERY', ...}, ...]
+        >>> leases[0].type
+        'REFINERY'
 
         :param id: The optional :attr:`Asset.Lease.id` of the asset lease.
         :return: The list of all assets or a single asset currently being
@@ -800,6 +976,24 @@ class RIT:
     def post_leases(self, id: Optional[int] = None, **kwargs: Any) -> Any:
         """Lease or use an asset.
 
+        >>> rit = RIT('G4DNIZ5D')
+        >>> lease = rit.post_leases(ticker='ETF-Creation')
+        >>> lease
+        {'id': 3, 'ticker': 'ETF-Creation', 'type': 'REFINERY', ...}
+        >>> lease.type
+        'REFINERY'
+        >>> lease = rit.post_leases(
+        ...     1,
+        ...     from1='BULL',
+        ...     quantity1=10000,
+        ...     from2='BEAR',
+        ...     quantity2=10000,
+        ...     from3='USD',
+        ...     quantity3=1500,
+        ... )
+        >>> lease
+        {'id': 1, 'ticker': 'ETF-Creation', 'type': 'REFINERY', ...}
+
         Depending on the type of asset, you will need to specify the
         ``fromN`` and ``quantityN`` parameters. Only specify subsequent
         ``fromN`` and ``quantityN`` parameters if needed.
@@ -836,6 +1030,11 @@ class RIT:
     def delete_leases(self, id: int, **kwargs: Any) -> Any:
         """Unlease an asset.
 
+        >>> rit = RIT('G4DNIZ5D')
+        >>> result = rit.delete_leases(3)
+        >>> result
+        {'success': True}
+
         :param id: The :attr:`Asset.Lease.id` of the asset lease.
         :return: The success result.
         """
@@ -866,6 +1065,10 @@ class RIT:
         specifies which orders were actually cancelled.
 
         The ``query`` parameter was removed in RIT REST API ``v1.0.4``.
+
+        >>> rit = RIT('G4DNIZ5D')
+        >>> rit.post_commands_cancel(all=1)
+        {'cancelled_order_ids': [3791, 3793, 3836, 3837, 3790, 3792, ...]}
 
         :param all: Set to ``1`` to cancel all open orders.
         :param ticker: Cancel all open orders for a security.
