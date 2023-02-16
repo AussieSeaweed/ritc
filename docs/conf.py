@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.abspath('..'))
 project = 'ritc'
 copyright = '2023, Juho Kim'
 author = 'Juho Kim'
-release = '0.0.0.dev0'
+release = '0.0.3'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
