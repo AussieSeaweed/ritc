@@ -2,16 +2,13 @@
 
 from distutils.core import setup
 
-with open('README.rst', 'r') as file:
-    long_description = file.read()
-
 setup(
     name='ritc',
     version='0.0.3',
     description='A Python library for interactions with Rotman Interactive '
                 'Trader Market Simulator Client Application via REST exchange '
                 'API',
-    long_description=long_description,
+    long_description=open('README.rst', 'r').read(),
     long_description_content_type='text/x-rst',
     author='Juho Kim',
     author_email='juho-kim@outlook.com',
