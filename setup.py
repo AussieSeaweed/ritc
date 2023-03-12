@@ -4,7 +4,7 @@ from distutils.core import setup
 
 setup(
     name='ritc',
-    version='0.0.3',
+    version='0.0.4',
     description='A Python library for interactions with Rotman Interactive '
                 'Trader Market Simulator Client Application via REST exchange '
                 'API',
