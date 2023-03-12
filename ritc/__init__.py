@@ -87,6 +87,7 @@ class _NestedMapping(Mapping[Any, Any]):
 
 class Error(Protocol):
     """This class is for error data."""
+
     code: str
     message: str
     wait: float
@@ -97,6 +98,7 @@ class Case(Protocol):
 
     class Status(str, Enum):
         """This class is for case statuses."""
+
         ACTIVE: str = 'ACTIVE'
         PAUSED: str = 'PAUSED'
         STOPPED: str = 'STOPPED'
@@ -112,6 +114,7 @@ class Case(Protocol):
 
 class Trader(Protocol):
     """This class is for traders."""
+
     trader_id: str
     first_name: str
     last_name: str
@@ -120,6 +123,7 @@ class Trader(Protocol):
 
 class Limit(Protocol):
     """This class is for limits."""
+
     name: str
     gross: float
     net: float
@@ -131,6 +135,7 @@ class Limit(Protocol):
 
 class News(Protocol):
     """This class is for news."""
+
     news_id: int
     period: int
     tick: int
@@ -144,11 +149,13 @@ class Ticker(Protocol):
 
     class Quantity(Protocol):
         """This class is for ticker quantities."""
+
         ticker: str
         quantity: float
 
     class Price(Protocol):
         """This class is for ticker prices."""
+
         ticker: str
         price: float
 
@@ -158,6 +165,7 @@ class Asset(Protocol):
 
     class Type(str, Enum):
         """This class is for asset types."""
+
         CONTAINER: str = 'CONTAINER'
         PIPELINE: str = 'PIPELINE'
         SHIP: str = 'SHIP'
@@ -167,6 +175,7 @@ class Asset(Protocol):
 
     class History(Protocol):
         """This class is for asset histories."""
+
         ticker: str
         tick: int
         action: str
@@ -178,6 +187,7 @@ class Asset(Protocol):
 
     class Lease(Protocol):
         """This class is for asset leases."""
+
         id: int
         ticker: str
         type: Asset.Type
@@ -210,16 +220,19 @@ class Order(Protocol):
 
     class Type(str, Enum):
         """This class is for order types."""
+
         MARKET: str = 'MARKET'
         LIMIT: str = 'LIMIT'
 
     class Action(str, Enum):
         """This class is for order actions."""
+
         BUY: str = 'BUY'
         SELL: str = 'SELL'
 
     class Status(str, Enum):
         """This class is for order statuses."""
+
         OPEN: str = 'OPEN'
         TRANSACTED: str = 'TRANSACTED'
         CANCELLED: str = 'CANCELLED'
@@ -240,11 +253,13 @@ class Order(Protocol):
 
 class SuccessResult(Protocol):
     """This class is for success results."""
+
     success: bool
 
 
 class CancellationResult(Protocol):
     """This class is for cancellation requests."""
+
     cancelled_order_ids: Sequence[int]
 
 
@@ -253,6 +268,7 @@ class Security(Protocol):
 
     class Type(str, Enum):
         """This class is for security types."""
+
         SPOT: str = 'SPOT'
         FUTURE: str = 'FUTURE'
         INDEX: str = 'INDEX'
@@ -268,11 +284,13 @@ class Security(Protocol):
 
     class Limit(Protocol):
         """This class is for security limits."""
+
         name: str
         units: float
 
     class Book(Protocol):
         """This class is for security books."""
+
         bid: Sequence[Order]
         ask: Sequence[Order]
         bids: Sequence[Order]
@@ -280,6 +298,7 @@ class Security(Protocol):
 
     class History(Protocol):
         """This class is for security histories."""
+
         tick: int
         open: float
         high: float
@@ -288,6 +307,7 @@ class Security(Protocol):
 
     class TAS(Protocol):
         """This class is for security times and sales."""
+
         id: int
         period: int
         tick: int
@@ -341,6 +361,7 @@ class Security(Protocol):
 
 class Tender(Protocol):
     """This class is for tenders."""
+
     tender_id: int
     period: int
     tick: int
