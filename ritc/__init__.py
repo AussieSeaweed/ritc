@@ -1,5 +1,5 @@
 """``ritc`` - A Python library for interactions with Rotman Interactive
-Trader Market Simulator Client Application via REST exchange API
+Trader Market Simulator Client Application via REST exchange API.
 """
 
 from __future__ import annotations
@@ -8,7 +8,7 @@ from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass, field
 from enum import Enum
 from time import sleep
-from typing import Any, Literal, Optional, Protocol, Union, overload
+from typing import Any, Literal, Optional, overload, Protocol, Union
 
 from requests import Session
 

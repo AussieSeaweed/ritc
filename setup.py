@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from distutils.core import setup
+from setuptools import find_packages, setup
 
 setup(
     name='ritc',
@@ -8,13 +8,12 @@ setup(
     description='A Python library for interactions with Rotman Interactive '
                 'Trader Market Simulator Client Application via REST exchange '
                 'API',
-    long_description=open('README.rst', 'r').read(),
+    long_description=open('README.rst').read(),
     long_description_content_type='text/x-rst',
+    url='https://github.com/AussieSeaweed/ritc',
     author='Juho Kim',
     author_email='juho-kim@outlook.com',
-    url='https://github.com/AussieSeaweed/ritc',
-    packages=['ritc'],
-    package_data={'ritc': ['py.typed']},
+    license='MIT',
     classifiers=[
         'Intended Audience :: Developers',
         'Intended Audience :: Education',
@@ -32,13 +31,14 @@ setup(
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
     ],
-    license='MIT',
     keywords=['rotman', 'rit', 'bmo', 'uoft'],
     project_urls={
         'Documentation': 'https://ritc.readthedocs.io/en/latest/',
         'Source': 'https://github.com/AussieSeaweed/ritc',
         'Tracker': 'https://github.com/AussieSeaweed/ritc/issues',
     },
-    install_requires=['requests~=2.28.2'],
+    packages=find_packages(),
+    install_requires=['requests>=2.28.2<3'],
     python_requires='>=3.9',
+    package_data={'ritc': ['py.typed']},
 )
