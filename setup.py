@@ -38,7 +38,7 @@ setup(
         'Tracker': 'https://github.com/AussieSeaweed/ritc/issues',
     },
     packages=find_packages(),
-    install_requires=['requests>=2.28.2<3'],
+    install_requires=['requests>=2.28.0<3'],
     python_requires='>=3.9',
     package_data={'ritc': ['py.typed']},
 )
