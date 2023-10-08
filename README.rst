@@ -1,8 +1,9 @@
-ritc
+====
+RITC
 ====
 
-A Python library for interactions with Rotman Interactive Trader Market
-Simulator Client Application via REST exchange API
+RITC is a Python library for interactions with Rotman Interactive Trader Market
+Simulator Client Application via REST exchange API.
 
 The official REST API for Rotman Interactive Trader can be found in their
 `API documentation`_.
@@ -34,11 +35,40 @@ You can install it by executing the following command:
 
    pip install ritc
 
-Documentation
--------------
+Usage
+-----
 
-You can read the latest_ and stable_ documentation online. Or, you can also
-generate the documentation for offline viewing with Sphinx.
+Below shows a sample usage of RITC.
 
-.. _latest: https://ritc.readthedocs.io/en/latest/
-.. _stable: https://ritc.readthedocs.io/en/stable/
+.. code-block:: python
+
+   from ritc import Order, RIT
+
+   rit = RIT('2X4P2XFA')
+
+   rit.post_commands_cancel(query=f'Ticker=\'BEAR\' AND Volume>0')
+   rit.post_orders(
+       True,
+       ticker='BULL',
+       type=Order.Type.LIMIT,
+       quantity=23,
+       action=Order.Action.BUY,
+       price=10.21,
+   )
+
+Testing and Validation
+----------------------
+
+RITC has extensive test coverage, passes mypy static type checking with strict
+parameter, and has been validated through extensive use in real-life scenarios.
+
+Contributing
+------------
+
+Contributions are welcome! Please read our Contributing Guide for more
+information.
+
+License
+-------
+
+RITC is distributed under the MIT license.

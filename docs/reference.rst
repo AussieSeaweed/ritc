@@ -1,5 +1,5 @@
-API Reference
-=============
+Reference
+=========
 
 .. automodule:: ritc
    :members:
